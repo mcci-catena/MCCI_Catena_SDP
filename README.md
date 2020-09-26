@@ -3,7 +3,25 @@
 This library provides a simple interface to Sensirion SDP31, SDP32, and SDP800-family differential pressure sensors. Although we tested this on the MCCI Catena 4618, there are no dependencies on MCCI hardware; this should work equally well with Adafruit breakout boards, etc.
 
 <!-- TOC depthFrom:2 updateOnSave:true -->
-<!-- /TOD -->
+
+- [Installation](#installation)
+	- [Installing Manually With Zip](#installing-manually-with-zip)
+	- [Installing with the IDE](#installing-with-the-ide)
+- [Using the Library](#using-the-library)
+	- [Header file](#header-file)
+	- [Namespaces](#namespaces)
+	- [Declare Sensor Objects](#declare-sensor-objects)
+	- [Preparing for use](#preparing-for-use)
+	- [Setting measurement mode](#setting-measurement-mode)
+	- [Start a measurement](#start-a-measurement)
+	- [Poll results](#poll-results)
+	- [Read measurement results](#read-measurement-results)
+	- [Get most recent data](#get-most-recent-data)
+	- [Put sensor to sleep](#put-sensor-to-sleep)
+	- [Shutdown sensor (for external power down)](#shutdown-sensor-for-external-power-down)
+- [Use with Catena 4801 M301](#use-with-catena-4801-m301)
+
+<!-- /TOC -->
 
 ## Installation
 
@@ -79,6 +97,18 @@ bool cSDP::startTriggeredMeasurement();
 bool cSDP::queryReady();
 ```
 
+To be really safe, if this returns `false` when using this to exit a busy loop, you should check the last error code. If it's not `cSDP::Error::Busy`, then a measurement is not in progress, and the loop will never ext.
+
+### Read measurement results
+
+```c++
+bool cSDP::readMeasurmeent();
+```
+
+This succeeds only if `queryReady()` has returned true. It reads the measurement from the sensor and returns `true` if all is successful. CRCs are checked.
+
+If it fails, the last data is unchanged.
+
 ### Get most recent data
 
 ```c++
@@ -88,7 +118,7 @@ float cSDP::getDifferentialPressure() const;
 cSDP::Measurement getMeasurement() const;
 ```
 
-### Sleep sensor
+### Put sensor to sleep
 
 ```c++
 bool cSDP::sleep();
