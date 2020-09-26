@@ -55,12 +55,12 @@ bool cSDP::readProductInfo()
         return false;
 
     // since we have the info, save it
-    const std::uint32_t productNumber = (getUint16BE(&productInfoRaw[0]) << 16)
-                                      + (getUint16BE(&productInfoRaw[3]) <<  0);
-    const std::uint64_t serialNumber  = (getUint16BE(&productInfoRaw[6])  << 48)
-                                      + (getUint16BE(&productInfoRaw[9])  << 32)
-                                      + (getUint16BE(&productInfoRaw[12]) << 16)
-                                      + (getUint16BE(&productInfoRaw[15]) <<  0)
+    const std::uint32_t productNumber = (std::uint32_t(getUint16BE(&productInfoRaw[0]))  << 16)
+                                      + (std::uint32_t(getUint16BE(&productInfoRaw[3]))  <<  0);
+    const std::uint64_t serialNumber  = (std::uint64_t(getUint16BE(&productInfoRaw[6]))  << 48)
+                                      + (std::uint64_t(getUint16BE(&productInfoRaw[9]))  << 32)
+                                      + (std::uint64_t(getUint16BE(&productInfoRaw[12])) << 16)
+                                      + (std::uint64_t(getUint16BE(&productInfoRaw[15])) <<  0)
                                       ;
 
     this->m_ProductInfo.ProductNumber = productNumber;
