@@ -218,7 +218,7 @@ public:
     bool setLastError(Error e)
         {
         this->m_lastError = e;
-        return e != Error::Success;
+        return e == Error::Success;
         }
     const char *getProductName() const
         {

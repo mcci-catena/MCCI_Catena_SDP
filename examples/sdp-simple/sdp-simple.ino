@@ -32,12 +32,19 @@ using namespace McciCatenaSdp;
 |
 \****************************************************************************/
 
+#if defined(MCCI_CATENA_4801)
+static constexpr bool k4801 = true;
+#else
+static constexpr bool k4801 = false;
+#endif
+
 /****************************************************************************\
 |
 |   Variables.
 |
 \****************************************************************************/
 
+bool fLed;
 cSDP gSdp {Wire, cSDP::Address::SDP8xx};
 
 /****************************************************************************\
@@ -66,6 +73,26 @@ void setup()
         yield();
 
     Serial.println("SDP Simple Test");
+
+    if (k4801)
+        {
+        /* power up sensor */
+        pinMode(D11, OUTPUT);
+        digitalWrite(D11, 1);
+
+        /* power up other i2c sensors */
+        pinMode(D10, OUTPUT);
+        digitalWrite(D10, 1);
+
+        /* bring up the LED */
+        pinMode(LED_BUILTIN, OUTPUT);
+        digitalWrite(LED_BUILTIN, 1);
+        fLed = true;
+        }
+
+    // let message get out.
+    delay(1000);
+
     if (! gSdp.begin())
         {
         printFailure("gSdp.begin() failed");
@@ -74,6 +101,9 @@ void setup()
 
 void loop()
     {
+    fLed = !fLed;
+    digitalWrite(LED_BUILTIN, fLed);
+
     if (! gSdp.startTriggeredMeasurement())
         printFailure("gSdp.startTriggeredMeasurement failed");
 
