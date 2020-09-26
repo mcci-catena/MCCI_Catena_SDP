@@ -1,0 +1,25 @@
+{
+    "configurations": [
+        {
+            "name": "Arduino STM32",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "C:\\Users\\tmm\\AppData\\Local\\Arduino15\\packages\\mcci\\tools\\**",
+                "C:\\Users\\tmm\\AppData\\Local\\Arduino15\\packages\\mcci\\hardware\\stm32\\2.7.0\\**"
+            ],
+            "defines": [
+                "ARDUINO=1812",
+                "ARDUINO_MCCI_CATENA_4801=1",
+                "CFG_us915=1"
+            ],
+            "forcedInclude": [
+                "C:\\Users\\tmm\\AppData\\Local\\Arduino15\\packages\\mcci\\hardware\\stm32\\2.7.0\\cores\\arduino\\Arduino.h"
+            ],
+            "intelliSenseMode": "msvc-x64",
+            "compilerPath": "C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/VC/Tools/MSVC/14.26.28801/bin/Hostx64/x64/cl.exe",
+            "cStandard": "c11",
+            "cppStandard": "c++17"
+        }
+    ],
+    "version": 4
+}
