@@ -33,7 +33,7 @@ using namespace McciCatenaSdp;
 void cMeasurementLoop::begin()
     {
     // turn on flags for debugging.
-    gLog.setFlags(cLog::DebugFlags(gLog.getFlags() | gLog.kTrace | gLog.kInfo));
+    // gLog.setFlags(cLog::DebugFlags(gLog.getFlags() | gLog.kTrace | gLog.kInfo));
 
     // assume we have a pressure sensor
     this->m_fDiffPressure = true;
