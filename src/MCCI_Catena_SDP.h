@@ -200,8 +200,29 @@ public:
         Busy,
         NotMeasuring,
         Crc,
+        Uninitialized,
         };
-    
+
+private:
+    // this is internal -- centralize it but require that clients call the 
+    // public method (which centralizes the strings and the search)
+    static constexpr const char *m_szErrorMessages = 
+        "Success\0"
+        "NoWire\0"
+        "CommandWriteFailed\0"
+        "CommandWriteBufferFailed\0"
+        "InternalInvalidParameter\0"
+        "I2cReadShort\0"
+        "I2cReadRequest\0"
+        "I2cReadLong\0"
+        "WakeupFailed\0"
+        "Busy\0"
+        "NotMeasuring\0"
+        "Crc\0"
+        "Uninitialized\0"
+        ;
+
+public:
     // the public methods
     bool begin();
     void end();
@@ -211,6 +232,7 @@ public:
     float getTemperature() const { return this->m_Measurement.Temperature; }
     float getDifferentialPressure() const { return this->m_Measurement.DifferentialPressure; }
     Measurement getMeasurement() const { return this->m_Measurement; }
+    MeasurementRaw getRawMeasurement() const { return this->m_MeasurementRaw; }
     Error getLastError() const
         {
         return this->m_lastError;
@@ -220,14 +242,24 @@ public:
         this->m_lastError = e;
         return e == Error::Success;
         }
+    static const char *getErrorName(Error e);
+    const char *getLastErrorName() const
+        {
+        return getErrorName(this->m_lastError);
+        }
     const char *getProductName() const
         {
         return getProductName(ProductId_t(this->m_ProductInfo.ProductNumber));
         }
     bool readProductInfo();
-
+    bool sleep();
+    bool isRunning() const
+        {
+        return this->m_state != State::Uninitialized;
+        }
     enum class State : std::uint8_t
         {
+        Uninitialized,
         Idle,
         Triggered,
         Continuous,
@@ -242,6 +274,13 @@ protected:
     std::int8_t getAddress() const
         { return static_cast<std::int8_t>(this->m_address); }
     bool wakeup();
+    bool checkRunning() 
+        {
+        if (! this->isRunning())
+            return this->setLastError(Error::Uninitialized);
+        else
+            return true;
+        }
 
 // following are arranged for alignment.
 private:
@@ -249,10 +288,12 @@ private:
     TwoWire *m_wire;                /// pointer to bus to be used for this device
     std::uint32_t m_tReady;         /// time next measurement will be ready (millis)
     ProductInfo m_ProductInfo;      /// product information read from device
+    MeasurementRaw m_MeasurementRaw; /// most recent raw data
     Address m_address;              /// I2C address to be used
     Pin_t m_pinAlert;               /// alert pin, or -1 if none.
     Error m_lastError;              /// last error.
-    State m_state;                  /// current state
+    State m_state                   /// current state
+        { State::Uninitialized };   // initially not yet started.
 
     static constexpr std::uint16_t getUint16BE(const std::uint8_t *p)
         {

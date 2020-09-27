@@ -59,7 +59,10 @@ void printFailure(const char *pMessage)
         {
         Serial.print(pMessage);
         Serial.print(", error: ");
-        Serial.println(std::uint8_t(gSdp.getLastError()));
+        Serial.print(gSdp.getLastErrorName());
+        Serial.print("(");
+        Serial.print(std::uint8_t(gSdp.getLastError()));
+        Serial.print(")");
         delay(2000);
         }
     

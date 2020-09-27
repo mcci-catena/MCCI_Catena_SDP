@@ -29,10 +29,19 @@ bool cSDP::begin()
     if (this->m_wire == nullptr)
         return this->setLastError(Error::NoWire);
 
+    if (this->isRunning())
+        return true;
+
     this->m_wire->begin();
     // the device might be asleep; assume nothing.
     this->m_state = State::Sleep;
     return this->readProductInfo();
+    }
+
+void cSDP::end()
+    {
+    if (this->isRunning())
+        this->m_state = State::Uninitialized;
     }
 
 bool cSDP::readProductInfo()
@@ -156,6 +165,9 @@ bool cSDP::startTriggeredMeasurement()
 
 bool cSDP::queryReady()
     {
+    if (! checkRunning())
+        return false;
+
     if (this->m_state != State::Triggered)
         return this->setLastError(Error::NotMeasuring);
     
@@ -169,6 +181,9 @@ bool cSDP::queryReady()
 
 bool cSDP::readMeasurement()
     {
+    if (! checkRunning())
+        return false;
+
     if (this->m_state != State::Triggered)
         return this->setLastError(Error::NotMeasuring);
 
@@ -188,6 +203,7 @@ bool cSDP::readMeasurement()
         m.TemperatureBits = getInt16BE(&measurementBuffer[3]);
         m.ScaleBits = getUint16BE(&measurementBuffer[6]);
 
+        this->m_MeasurementRaw = m;
         this->m_Measurement.set(m);
         }
 
@@ -239,4 +255,45 @@ bool cSDP::crc_multi(const std::uint8_t *buf, size_t nbuf)
         return this->setLastError(Error::InternalInvalidParameter);
 
     return true;
+    }
+
+bool cSDP::sleep()
+    {
+    if (! checkRunning())
+        return false;
+    // no need to send commmand if asleep
+    if (this->m_state == State::Sleep)
+        return true;
+
+    // can't send command if we're idle
+    if (! (this->m_state == State::Idle))
+        return this->setLastError(Error::Busy);
+
+    bool const result = this->writeCommand(Command::EnterSleepMode);
+    if (result)
+        this->m_state = State::Sleep;
+
+    return result;
+    }
+
+const char * cSDP::getErrorName(cSDP::Error e)
+    {
+    auto p = m_szErrorMessages;
+
+    // iterate based on error index.
+    for (unsigned eIndex = unsigned(e); eIndex > 0; --eIndex)
+        {
+        // stop when we get to empty string
+        if (*p == '\0')
+            break;
+        // otherwise, skip this one.
+        p += strlen(p) + 1;
+        }
+
+    // if we have a valid string, return it
+    if (*p != '\0')
+        return p;
+    // otherwise indicate that the input wasn't valid.
+    else
+        return "<<unknown>>";
     }
