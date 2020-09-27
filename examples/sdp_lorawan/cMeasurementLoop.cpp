@@ -302,20 +302,22 @@ void cMeasurementLoop::fillTxBuffer(cMeasurementLoop::TxBuffer_t& b)
         // pressure is 4 bytes, first signed units, then scale.
         if (gLog.isEnabled(gLog.kInfo))
             {
+            char ts = ' ';
             std::int32_t t100 = std::int32_t(m.Temperature * 100.0f + 0.5f);
+            if (m.Temperature < 0) { ts = '-'; t100 = -t100; }
             std::int32_t tint = t100 / 100;
             std::int32_t tfrac = t100 - (tint * 100);
-            if (tfrac < 0) tfrac = -tfrac;
 
+            char dps = '+';
             std::int32_t dp100 = std::int32_t(m.DifferentialPressure * 100.0f + 0.5f);
+            if (m.DifferentialPressure < 0) { dps = '-'; dp100 = -dp100; }
             std::int32_t dpint = dp100 / 100;
             std::int32_t dpfrac = dp100 - (dpint * 100);
-            if (dpfrac < 0) dpfrac = -dpfrac;
 
             gCatena.SafePrintf(
-                "SHT3x:  T: %d.%02d delta-P: %d.%0d2\n",
-                tint, tfrac,
-                dpint, dpfrac
+                "SDP:  T: %c%d.%02d  delta-P: %c%d.%0d2\n",
+                ts, tint, tfrac,
+                dps, dpint, dpfrac
                 );
             }
 
