@@ -22,11 +22,17 @@ Author:
 #include "cMeasurementLoop.h"
 #include <arduino_lmic.h>
 
+using namespace McciCatena;
+using namespace McciCatenaSdp;
+
+
 /****************************************************************************\
 |
 |   Constants.
 |
 \****************************************************************************/
+
+constexpr std::uint32_t kAppVersion = makeVersion(1,0,0,0);
 
 #if defined(ARDUINO_MCCI_CATENA_4801)
 static constexpr bool k4801 = true;
@@ -43,25 +49,27 @@ static constexpr bool k4801 = false;
 using namespace McciCatena;
 using namespace McciCatenaSdp;
 
+// the global Catena instance
 Catena gCatena;
+// the global LoRaWAN instance
 Catena::LoRaWAN gLoRaWAN;
+// the global LED instance
 StatusLed gLed (Catena::PIN_STATUS_LED);
 
+// the global secondary SPI bus (used for the flash)
 SPIClass gSPI2(
     Catena::PIN_SPI2_MOSI,
     Catena::PIN_SPI2_MISO,
     Catena::PIN_SPI2_SCK
     );
 
-//   The flash
+// the flash
 Catena_Mx25v8035f gFlash;
+// status flag, true if flash was probed at boot.
 bool gfFlash;
 
-//   The SDP Sensor
+// The SDP Sensor
 cSDP gSDP { Wire, cSDP::Address::SDP8xx };
-
-//  True if SDP was probed at attach time.
-bool gfDiffPressure;
 
 // the measurement loop instance
 cMeasurementLoop gMeasurementLoop { gSDP };
@@ -119,6 +127,7 @@ void setup_platform()
     gCatena.begin();
 
     gLed.begin();
+    gCatena.registerObject(&gLed);
     gLed.Set(McciCatena::LedPattern::FastFlash);
 
     // if running unattended, don't wait for USB connect.
@@ -151,14 +160,18 @@ void setup_printSignOn()
 
     gCatena.SafePrintf("\n%s%s\n", dashes, dashes);
 
-    gCatena.SafePrintf("This is %s.\n", filebasename(__FILE__));
-        {
+    gCatena.SafePrintf("This is %s v%d.%d.%d.%d.\n",
+        filebasename(__FILE__),
+        getMajor(kAppVersion), getMinor(kAppVersion), getPatch(kAppVersion), getLocal(kAppVersion)
+        );
+
+    do  {
         char sRegion[16];
         gCatena.SafePrintf("Target network: %s / %s\n",
                         gLoRaWAN.GetNetworkName(),
                         gLoRaWAN.GetRegionString(sRegion, sizeof(sRegion))
                         );
-        }
+        } while (0);
 
     gCatena.SafePrintf("System clock rate is %u.%03u MHz\n",
         ((unsigned)gCatena.GetSystemClockRate() / (1000*1000)),
