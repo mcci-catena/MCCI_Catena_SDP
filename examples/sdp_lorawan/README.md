@@ -9,10 +9,12 @@ The sketch in this directory (found [here](https://github.com/mcci-catena/MCCI_C
 	- [`run`](#run)
 	- [`stop`](#stop)
 	- [`system configure operatingflags`](#system-configure-operatingflags)
-- [Operating flags](#operating-flags)
-	- [Sleep and the serial port](#sleep-and-the-serial-port)
 - [Data Format](#data-format)
-- [](#)
+- [Provisioning](#provisioning)
+- [Setup for Development and Provisioning](#setup-for-development-and-provisioning)
+- [Meta](#meta)
+	- [Support Open Source Hardware and Software](#support-open-source-hardware-and-software)
+	- [Trademarks](#trademarks)
 
 <!-- /TOC -->
 
@@ -49,6 +51,58 @@ If bit zero is clear, the device is in "development mode". In this mode, the dev
 
 ## Data Format
 
-The device transmits data on port 1, and uses the first byte as a format discriminator. The byte is `0x1F`.  See 
+The device transmits data on port 1, and uses the first byte as a format discriminator. The byte is `0x1F`.  See [`message-port1-format-1f.md1](extra/message-port1-format-1f.md) for details; decoders can also be found in that directory.
 
-## 
+## Provisioning
+
+Because this library uses the standard Catena-Arduino-Platform library, the Catena 4801 is provisioned via the serial port using the standard procedures used for all MCCI devices.
+
+See [How to Provision Your Catena Device](https://github.com/mcci-catena/Catena-Sketches/blob/master/extra/How-To-Provision-Your-Catena-Device.md) and [Getting Started with The Things Network](https://github.com/mcci-catena/Catena-Sketches/blob/master/extra/Getting-Started-With-The-Things-Network.md) for more information.
+
+This photo may help with hooking up the serial port and an STLINK:
+
+![Photo of 4810 M301 setup for development](../../assets/4801-m301-serial+jtag.jpg)
+
+## Setup for Development and Provisioning
+
+1. Attach an ST-LINK-2 to the SWD pins of the 4801 using jumpers.
+
+   ![Reference Picture of ST-Link-2](../../assets/stlink-layout.png).
+
+   | 4801 Pin |  Label | ST-Link Pin | Jumper Color
+   |:--------:|:------:|:-----------:|---------------
+   |   JP1-1  |  +VDD  |      1      | Red
+   |   JP1-2  |   GND  |      3      | Black
+   |   JP1-3  | SWDCLK |      9      | Brown
+   |   JP1-4  | SWDIO  |      7      | Orange
+   |   JP1-5  |  nRST  |     15      | Yellow
+
+2. Attach a Raspberry Pi 3-pin USB to TTL serial adapter.
+
+   | 4801 Pin |  Label |    Pi 3-Wire Color
+   |:--------:|:------:|:------------------------
+   |   JP4-1  |  GND   |     Black
+   |   JP4-2  |   D0   |     Orange
+   |   JP4-3  |   D1   |     Yellow
+
+3. Connect the serial adapter to PC via USB.  Ensure (in device manager) that the FTDI driver is creating a COM port.
+
+4. Use TeraTerm and open the COM port. In `Setup>Serial`, set speed to 115200, and set transmit delay to 1.
+
+   ![Tera Term Setup>Serial](../../assets/TeraTerm-setup-serial.png)
+
+   If you see instructions to set local echo on, or change line ending, you can ignore them -- they're no longer needed with recent versions of the Catena Arduino Platform.
+
+From here, you should be able to use the IDE to download code, and use the standard provisioning procedures to provision your device.
+
+## Meta
+
+### Support Open Source Hardware and Software
+
+MCCI invests time and resources providing this open source code, please support MCCI and open-source hardware by purchasing products from MCCI, Adafruit and other open-source hardware/software vendors!
+
+For information about MCCI's products, please visit [store.mcci.com](https://store.mcci.com/).
+
+### Trademarks
+
+MCCI and MCCI Catena are registered trademarks of MCCI Corporation. All other marks are the property of their respective owners.

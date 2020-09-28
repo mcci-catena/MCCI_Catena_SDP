@@ -2,6 +2,8 @@
 
 This library provides a simple interface to Sensirion SDP31, SDP32, and SDP800-family differential pressure sensors. Although we tested this on the MCCI Catena 4618, there are no dependencies on MCCI hardware; this should work equally well with Adafruit breakout boards, etc.
 
+See [Meta](#meta) for information on getting sensors from MCCI.
+
 <!-- TOC depthFrom:2 updateOnSave:true -->
 
 - [Installation](#installation)
@@ -20,6 +22,11 @@ This library provides a simple interface to Sensirion SDP31, SDP32, and SDP800-f
 	- [Put sensor to sleep](#put-sensor-to-sleep)
 	- [Shutdown sensor (for external power down)](#shutdown-sensor-for-external-power-down)
 - [Use with Catena 4801 M301](#use-with-catena-4801-m301)
+- [Meta](#meta)
+	- [Sensors from MCCI](#sensors-from-mcci)
+	- [License](#license)
+	- [Support Open Source Hardware and Software](#support-open-source-hardware-and-software)
+	- [Trademarks](#trademarks)
 
 <!-- /TOC -->
 
@@ -91,13 +98,17 @@ cSDP::Mode cSDP::getMode() const;
 bool cSDP::startTriggeredMeasurement();
 ```
 
+V1.0.0 of the library only supports triggered measurements in differential pressure mode. However, it's architected to allow easy addition of continuous measurements in differential pressure or mass flow mode.
+
 ### Poll results
 
 ```c++
 bool cSDP::queryReady();
 ```
 
-To be really safe, if this returns `false` when using this to exit a busy loop, you should check the last error code. If it's not `cSDP::Error::Busy`, then a measurement is not in progress, and the loop will never ext.
+After trigging a measurement, you must delay for it to become available. `queryReady()` will return `true` once a measurement is ready.
+
+To be really safe, if this returns `false` when using this to exit a busy loop, you should check the last error code. If it's not `cSDP::Error::Busy`, then a measurement is not in progress, and the loop will never exit.
 
 ### Read measurement results
 
@@ -105,14 +116,16 @@ To be really safe, if this returns `false` when using this to exit a busy loop, 
 bool cSDP::readMeasurmeent();
 ```
 
-This succeeds only if `queryReady()` has returned true. It reads the measurement from the sensor and returns `true` if all is successful. CRCs are checked.
+This succeeds only if `queryReady()` has returned true. It reads the measurement from the sensor into internal buffers and returns `true` if all is successful. CRCs are checked.
 
-If it fails, the last data is unchanged.
+If it fails, the last data in internal buffers is not changed.
 
 ### Get most recent data
 
 ```c++
+// return temperature in degrees Celsius.
 float cSDP::getTemperature() const;
+// return differential pressure in Pascals.
 float cSDP::getDifferentialPressure() const;
 // return Measurement::Temperature and Measurement::DifferentialPressure:
 cSDP::Measurement getMeasurement() const;
@@ -124,13 +137,16 @@ cSDP::Measurement getMeasurement() const;
 bool cSDP::sleep();
 ```
 
-### Shutdown sensor (for external power down)
+This routine issues a sleep command to the sensor. It can only be issued when the sensor is idle, and will return `false` if the sensor is not in the appropriate state. The library will automatically wake up the sensor when appropriate.
 
-You must call `cSDP::begin()` before using the sensor again.
+### Shutdown sensor (for external power down)
 
 ```c++
 void cSDP::end();
 ```
+
+This routine shuts down the library (for example, if you're powering down the sensor). 
+You must call `cSDP::begin()` before using the sensor again.
 
 ## Use with Catena 4801 M301
 
@@ -153,3 +169,26 @@ The wires of the cable assembly should be connected to JP2 of the 4801 M301. Not
 
 ![Cable attached to 4801 M301](assets/SDP810-cable-and-4801-M301.jpg)
 
+See the example sketch, [`examples/sdp_lorawan`](examples/sdp_lorawan/README.md) for a complete example that transmits data via the network.
+
+## Meta
+
+### Sensors from MCCI
+
+MCCI offers a complete test kit, the MCCI Catena 4801 M311, consisting of an SDP810-125Pa sensor, a cable, and an [MCCI Catena 4801](https://mcci.io/catena4801) M301 I2C/Modbus to LoRaWAN board. We also offer accessories and enclosures to help you get started quickly, along with technical support.
+
+If you can't find the Catena 4801 kit on the store, please contact MCCI directly, or ask a question at [portal.mcci.com](https://portal.mcci.com).
+
+### License
+
+This repository is released under the [MIT](./LICENSE) license. Commercial licenses are also available from MCCI Corporation.
+
+### Support Open Source Hardware and Software
+
+MCCI invests time and resources providing this open source code, please support MCCI and open-source hardware by purchasing products from MCCI, Adafruit and other open-source hardware/software vendors!
+
+For information about MCCI's products, please visit [store.mcci.com](https://store.mcci.com/).
+
+### Trademarks
+
+MCCI and MCCI Catena are registered trademarks of MCCI Corporation. All other marks are the property of their respective owners.
