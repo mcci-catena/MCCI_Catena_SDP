@@ -17,6 +17,7 @@ Author:
 
 #include <Arduino.h>
 #include <Wire.h>
+#include <cstdint>
 
 /****************************************************************************\
 |
@@ -65,8 +66,41 @@ void printFailure(const char *pMessage)
         Serial.print(")");
         delay(2000);
         }
-    
     }
+
+// format a uint64_t into a buffer and return pointer to first byte.
+char *formatUint64(char *pBuf, size_t nBuf, std::uint64_t v, unsigned base)
+    {
+    char *p;
+
+    if (pBuf == nullptr || nBuf == 0)
+        return nullptr;
+
+    p = pBuf + nBuf;
+    *--p = '\0';
+    while (p > pBuf)
+        {
+        unsigned digit;
+        
+        digit = unsigned(v % base);
+        v = v / base;
+        --p;
+
+        if (digit < 10)
+            *p = '0' + digit;
+        else
+            *p = 'A' + digit - 10;
+
+        if (v == 0)
+            break;
+        }
+
+    if (p == pBuf && v != 0)
+        *p = '*';
+
+    return p;
+    }
+
 void setup()
     {
     Serial.begin(115200);
@@ -100,27 +134,47 @@ void setup()
         {
         printFailure("gSdp.begin() failed");
         }
+
+    Serial.print("Found sensor ");
+    Serial.print(gSdp.getProductName());
+    Serial.print(", serial number ");
+
+    // serial number is uint64. Max is 20 digits plus space. 
+    char snbuffer[21];
+
+    Serial.println(formatUint64(snbuffer, sizeof(snbuffer), gSdp.getSerialNumber(), 10));
     }
 
 void loop()
     {
+    // toggle the LED
     fLed = !fLed;
     digitalWrite(LED_BUILTIN, fLed);
 
+    // start a measurement
     if (! gSdp.startTriggeredMeasurement())
         printFailure("gSdp.startTriggeredMeasurement failed");
 
+    // wait for measurement to complete.
     while (! gSdp.queryReady())
         {
         if (gSdp.getLastError() != cSDP::Error::Busy)
             printFailure("queryReady() failed");
         }
 
+    // get the results.
     if (! gSdp.readMeasurement())
         {
         printFailure("readMeasurement() failed");
         }
 
+    // put the sensor to sleep.
+    if (! gSdp.sleep())
+        {
+        printFailure("sleep() failed");
+        }
+
+    // display the results by fetching then displaying.
     auto m = gSdp.getMeasurement();
 
     Serial.print("T(F)=");

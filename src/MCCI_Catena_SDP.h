@@ -251,6 +251,10 @@ public:
         {
         return getProductName(ProductId_t(this->m_ProductInfo.ProductNumber));
         }
+    std::uint64_t getSerialNumber() const
+        {
+        return this->m_ProductInfo.SerialNumber;
+        }
     bool readProductInfo();
     bool sleep();
     bool isRunning() const

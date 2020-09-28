@@ -75,13 +75,13 @@ cSDP gSDP { Wire, cSDP::Address::SDP8xx };
 cMeasurementLoop gMeasurementLoop { gSDP };
 
 // forward reference to the command functions
-cCommandStream::CommandFn cmdDebugMask;
+cCommandStream::CommandFn cmdDebugFlags;
 cCommandStream::CommandFn cmdRunStop;
 
 // the individual commmands are put in this table
 static const cCommandStream::cEntry sMyExtraCommmands[] =
         {
-        { "debugmask", cmdDebugMask },
+        { "debugflags", cmdDebugFlags },
         { "run", cmdRunStop },
         { "stop", cmdRunStop },
         // other commands go here....
@@ -268,7 +268,7 @@ void loop()
 /* process "debugmask" -- args are ignored */
 // argv[0] is the matched command name.
 // argv[1] if present is the new mask
-cCommandStream::CommandStatus cmdDebugMask(
+cCommandStream::CommandStatus cmdDebugFlags(
         cCommandStream *pThis,
         void *pContext,
         int argc,
