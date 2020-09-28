@@ -16,6 +16,7 @@ Author:
 #include "cMeasurementLoop.h"
 
 #include "sdp_lorawan.h"
+#include <arduino_lmic.h>
 
 #ifndef ARDUINO_MCCI_CATENA_4801
 # error "This sketch targets the MCCI Catena 4801"
@@ -322,10 +323,12 @@ void cMeasurementLoop::fillTxBuffer(cMeasurementLoop::TxBuffer_t& b)
             }
 
         b.put2(std::uint32_t(mraw.TemperatureBits));
-        b.put2(std::uint32_t(mraw.DifferentialPressureBits));
-        b.put2(std::uint32_t(mraw.ScaleBits));
+        // put2 takes a uint32_t or int32_t. We want the uint32_t version,
+        // so we cast. f2sflt16() takes (-1.0f, +1.0f) and returns a uint16_t
+        // as an encoding.
+        b.put2(std::uint32_t(LMIC_f2sflt16(m.DifferentialPressure * 60.0f / 32768.0f)));
 
-        flag |= Flags::PS | Flags::T;
+        flag |= Flags::DP | Flags::T;
         }
 
     *pFlag = std::uint8_t(flag);

@@ -104,8 +104,8 @@ public:
             Vbat = 1 << 0,
             Vcc = 1 << 1,
             Boot = 1 << 2,
-            T = 1 << 3,     // temperature (0.005 deg C)
-            PS = 1 << 4,    // pressure and scaling
+            T = 1 << 3,     // temperature (int16, 0.005 deg C)
+            DP = 1 << 4,    // Differential pressure (sflt, Pa * 60/32768)
             };
 
     static constexpr size_t kTxBufferSize = 36;
