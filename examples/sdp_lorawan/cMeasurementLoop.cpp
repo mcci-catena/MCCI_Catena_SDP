@@ -621,7 +621,12 @@ void cMeasurementLoop::deepSleepRecovery(void)
     if (gfFlash)
             gSPI2.begin();
 
+    // start the SDP, and make sure it passes the bring-up.
+    // record success in m_fDiffPressure, which is used later
+    // when collecting results to transmit.
     this->m_fDiffPressure = this->m_Sdp.begin();
+
+    // if it didn't start, log a message.
     if (! this->m_fDiffPressure)
         {
         if (gLog.isEnabled(gLog.DebugFlags::kError))
