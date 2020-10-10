@@ -588,6 +588,10 @@ void cMeasurementLoop::doDeepSleep()
 
 void cMeasurementLoop::deepSleepPrepare(void)
     {
+    // this code is very specific to the MCCI Catena 4801 and
+    // depends on the BSP's .end() methods to really shut things
+    // down. If porting, bear this in mind; you'll need to modify
+    // this.
     this->m_Sdp.end();
     Serial.end();
     Wire.end();
@@ -595,12 +599,21 @@ void cMeasurementLoop::deepSleepPrepare(void)
     if (gfFlash)
         gSPI2.end();
     digitalWrite(D10, 0);
+    pinMode(D10, INPUT);    // this reduces power!
     digitalWrite(D11, 0);
+    pinMode(D11, INPUT);    // this also reduces power!
+    // in case power boost was on, turn it off.
+    pinMode(D5, INPUT);
     }
 
 void cMeasurementLoop::deepSleepRecovery(void)
     {
+    // this code is very specific to the MCCI Catena 4801 and
+    // reverses the work done by deepSleepPrepare(). If porting, bear
+    // this in mind; you'll need to modify this routine.
+    pinMode(D11, OUTPUT);
     digitalWrite(D11, 1);
+    pinMode(D10, OUTPUT);
     digitalWrite(D10, 1);
     Serial.begin();
     Wire.begin();
@@ -608,7 +621,12 @@ void cMeasurementLoop::deepSleepRecovery(void)
     if (gfFlash)
             gSPI2.begin();
 
+    // start the SDP, and make sure it passes the bring-up.
+    // record success in m_fDiffPressure, which is used later
+    // when collecting results to transmit.
     this->m_fDiffPressure = this->m_Sdp.begin();
+
+    // if it didn't start, log a message.
     if (! this->m_fDiffPressure)
         {
         if (gLog.isEnabled(gLog.DebugFlags::kError))
