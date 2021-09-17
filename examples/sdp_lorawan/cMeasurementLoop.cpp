@@ -628,8 +628,12 @@ void cMeasurementLoop::deepSleepPrepare(void)
     pinMode(D10, INPUT);    // this reduces power!
     digitalWrite(D11, 0);
     pinMode(D11, INPUT);    // this also reduces power!
-    // in case power boost was on, turn it off.
-    pinMode(D5, INPUT);
+    if (k4801)
+        // in case power boost was on, turn it off.
+        pinMode(D5, INPUT);
+    if (k4802)
+        // disable extended I2C.
+        pinMode(D34, INPUT);
     }
 
 void cMeasurementLoop::deepSleepRecovery(void)
@@ -641,6 +645,11 @@ void cMeasurementLoop::deepSleepRecovery(void)
     digitalWrite(D11, 1);
     pinMode(D10, OUTPUT);
     digitalWrite(D10, 1);
+    if (k4802){
+        // enable extended I2C.
+        pinMode(D34, OUTPUT);
+        digitalWrite(D34, 1);
+        }
     Serial.begin();
     Wire.begin();
     SPI.begin();

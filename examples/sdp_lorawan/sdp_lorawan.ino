@@ -136,6 +136,10 @@ void setup_platform()
             }
 
     gLed.Set(McciCatena::LedPattern::FiftyFiftySlow);
+
+    // enable extended I2C.
+    pinMode(D34, OUTPUT);
+    digitalWrite(D34, 1);
     }
 
 static constexpr const char *filebasename(const char *s)
