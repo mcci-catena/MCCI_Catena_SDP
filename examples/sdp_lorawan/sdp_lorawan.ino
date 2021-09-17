@@ -13,8 +13,10 @@ Author:
 
 */
 
-#ifndef ARDUINO_MCCI_CATENA_4801
-# error "This sketch targets the MCCI Catena 4801"
+#if defined(ARDUINO_MCCI_CATENA_4801) || defined(ARDUINO_MCCI_CATENA_4802)
+/* Expected Architecture */
+#else
+# error "This sketch targets the MCCI Catena 4801/4802"
 #endif
 
 #include <Arduino.h>
@@ -32,13 +34,7 @@ using namespace McciCatenaSdp;
 |
 \****************************************************************************/
 
-constexpr std::uint32_t kAppVersion = makeVersion(1,0,1,0);
-
-#if defined(ARDUINO_MCCI_CATENA_4801)
-static constexpr bool k4801 = true;
-#else
-static constexpr bool k4801 = false;
-#endif
+constexpr std::uint32_t kAppVersion = makeVersion(1,1,0,0);
 
 /****************************************************************************\
 |
