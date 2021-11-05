@@ -153,7 +153,7 @@ public:
         SDP800_125  = 0x03020201,
         SDP810_125  = 0x03020B01,
         };
-    
+
     static constexpr const char * getProductName(ProductId_t id)
         {
         return (id == ProductId_t::SDP31)       ? "SDP31"
@@ -204,9 +204,9 @@ public:
         };
 
 private:
-    // this is internal -- centralize it but require that clients call the 
+    // this is internal -- centralize it but require that clients call the
     // public method (which centralizes the strings and the search)
-    static constexpr const char *m_szErrorMessages = 
+    static constexpr const char *m_szErrorMessages =
         "Success\0"
         "NoWire\0"
         "CommandWriteFailed\0"
@@ -278,7 +278,7 @@ protected:
     std::int8_t getAddress() const
         { return static_cast<std::int8_t>(this->m_address); }
     bool wakeup();
-    bool checkRunning() 
+    bool checkRunning()
         {
         if (! this->isRunning())
             return this->setLastError(Error::Uninitialized);

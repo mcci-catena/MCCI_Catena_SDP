@@ -89,11 +89,11 @@ bool cSDP::wakeup()
         {
         delay(2);
         this->m_wire->beginTransmission(std::uint8_t(this->m_address));
-        
+
         if (this->m_wire->endTransmission() != 0)
             return this->setLastError(Error::WakeupFailed);
         }
-    
+
     this->m_state = State::Idle;
     return true;
     }
@@ -170,7 +170,7 @@ bool cSDP::queryReady()
 
     if (this->m_state != State::Triggered)
         return this->setLastError(Error::NotMeasuring);
-    
+
     if (std::int32_t(millis() - this->m_tReady) < 0)
         {
         return this->setLastError(Error::Busy);
@@ -244,7 +244,7 @@ bool cSDP::crc_multi(const std::uint8_t *buf, size_t nbuf)
     {
     if (buf == nullptr)
         return this->setLastError(Error::InternalInvalidParameter);
-    
+
     for (; nbuf >= 3; buf += 3, nbuf -= 3)
         {
         if (this->crc(buf, 2) != buf[2])
