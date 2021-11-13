@@ -207,7 +207,7 @@ cMeasurementLoop::State cMeasurementLoop::fsmDispatch(
                 {
                 gLog.printf(gLog.kAlways, "SDP measurement timed out\n");
                 }
-    
+
             newState = State::stSleepSensor;
             }
         break;
@@ -252,7 +252,7 @@ cMeasurementLoop::State cMeasurementLoop::fsmDispatch(
     default:
         break;
         }
-    
+
     return newState;
     }
 
@@ -322,7 +322,10 @@ void cMeasurementLoop::fillTxBuffer(cMeasurementLoop::TxBuffer_t& b)
                 );
             }
 
-        b.put2(std::uint32_t(mraw.TemperatureBits));
+        // put2 takes a unit32_t or int32_t; temperature is signed, so
+        // use the int32_t version.
+        b.put2(std::int32_t(mraw.TemperatureBits));
+
         // put2 takes a uint32_t or int32_t. We want the uint32_t version,
         // so we cast. f2sflt16() takes (-1.0f, +1.0f) and returns a uint16_t
         // as an encoding.
@@ -395,7 +398,7 @@ void cMeasurementLoop::sendBufferDone(bool fSuccess)
 
 /****************************************************************************\
 |
-|   The Polling function -- 
+|   The Polling function --
 |
 \****************************************************************************/
 
@@ -438,7 +441,7 @@ void cMeasurementLoop::poll()
 
 /****************************************************************************\
 |
-|   Update the TxCycle count. 
+|   Update the TxCycle count.
 |
 \****************************************************************************/
 
@@ -467,7 +470,7 @@ void cMeasurementLoop::updateTxCycleTime()
 
 /****************************************************************************\
 |
-|   Handle sleep between measurements 
+|   Handle sleep between measurements
 |
 \****************************************************************************/
 

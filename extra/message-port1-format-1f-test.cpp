@@ -222,7 +222,7 @@ void encodeMeasurement(Buffer &buf, Measurements &m)
         flags |= 1 << 2;
         buf.push_back(m.Boot.v);
         }
-    
+
     if (m.Temperature.fValid)
         {
         flags |= 1 << 3;
@@ -279,7 +279,7 @@ void logMeasurement(Measurements &m)
         {
         std::cout << pad.get() << "Boot " << unsigned(m.Boot.v);
         }
-    
+
     if (m.Temperature.fValid)
         {
         std::cout << pad.get() << "T " << m.Temperature.v;
@@ -375,7 +375,7 @@ int main(int argc, char **argv)
 
         fAny |= fUpdate;
         }
-    
+
     if (!std::cin.eof() && std::cin.fail())
         {
         std::string nextword;

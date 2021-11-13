@@ -32,7 +32,7 @@ using namespace McciCatenaSdp;
 |
 \****************************************************************************/
 
-constexpr std::uint32_t kAppVersion = makeVersion(1,0,0,0);
+constexpr std::uint32_t kAppVersion = makeVersion(1,0,1,0);
 
 #if defined(ARDUINO_MCCI_CATENA_4801)
 static constexpr bool k4801 = true;

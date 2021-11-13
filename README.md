@@ -145,7 +145,7 @@ This routine issues a sleep command to the sensor. It can only be issued when th
 void cSDP::end();
 ```
 
-This routine shuts down the library (for example, if you're powering down the sensor). 
+This routine shuts down the library (for example, if you're powering down the sensor).
 You must call `cSDP::begin()` before using the sensor again.
 
 ## Use with Catena 4801 M301
