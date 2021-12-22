@@ -18,8 +18,22 @@ Author:
 #include "sdp_lorawan.h"
 #include <arduino_lmic.h>
 
-#ifndef ARDUINO_MCCI_CATENA_4801
-# error "This sketch targets the MCCI Catena 4801"
+#if defined(ARDUINO_MCCI_CATENA_4801) || defined(ARDUINO_MCCI_CATENA_4802)
+/* Expected Architecture */
+#else
+# error "This sketch targets the MCCI Catena 4801/4802"
+#endif
+
+#if defined(ARDUINO_MCCI_CATENA_4801)
+static constexpr bool k4801 = true;
+#else
+static constexpr bool k4801 = false;
+#endif
+
+#if defined(ARDUINO_MCCI_CATENA_4802)
+static constexpr bool k4802 = true;
+#else
+static constexpr bool k4802 = false;
 #endif
 
 using namespace McciCatena;
@@ -279,9 +293,18 @@ void cMeasurementLoop::fillTxBuffer(cMeasurementLoop::TxBuffer_t& b)
     b.put(std::uint8_t(flag));
 
     // send Vbat
-    float Vbat = gCatena.ReadVbat();
-    gCatena.SafePrintf("Vbat:    %d mV\n", (int) (Vbat * 1000.0f));
-    b.putV(Vbat);
+    if (k4801)
+        {
+        float Vbat = gCatena.ReadVbat();
+        gCatena.SafePrintf("Vbat:    %d mV\n", (int) (Vbat * 1000.0f));
+        b.putV(Vbat);
+        }
+    else if (k4802)
+        {
+        float vIn = gCatena.ReadVin();
+        gCatena.SafePrintf("vIn:    %d mV\n", (int) (vIn * 1000.0f));
+        b.putV(vIn);
+        }
     flag |= Flags::Vbat;
 
     // send Vdd if we can measure it.
@@ -591,7 +614,7 @@ void cMeasurementLoop::doDeepSleep()
 
 void cMeasurementLoop::deepSleepPrepare(void)
     {
-    // this code is very specific to the MCCI Catena 4801 and
+    // this code is very specific to the MCCI Catena 4801/4802 and
     // depends on the BSP's .end() methods to really shut things
     // down. If porting, bear this in mind; you'll need to modify
     // this.
@@ -605,19 +628,28 @@ void cMeasurementLoop::deepSleepPrepare(void)
     pinMode(D10, INPUT);    // this reduces power!
     digitalWrite(D11, 0);
     pinMode(D11, INPUT);    // this also reduces power!
-    // in case power boost was on, turn it off.
-    pinMode(D5, INPUT);
+    if (k4801)
+        // in case power boost was on, turn it off.
+        pinMode(D5, INPUT);
+    if (k4802)
+        // disable extended I2C.
+        pinMode(D34, INPUT);
     }
 
 void cMeasurementLoop::deepSleepRecovery(void)
     {
-    // this code is very specific to the MCCI Catena 4801 and
+    // this code is very specific to the MCCI Catena 4801/4802 and
     // reverses the work done by deepSleepPrepare(). If porting, bear
     // this in mind; you'll need to modify this routine.
     pinMode(D11, OUTPUT);
     digitalWrite(D11, 1);
     pinMode(D10, OUTPUT);
     digitalWrite(D10, 1);
+    if (k4802){
+        // enable extended I2C.
+        pinMode(D34, OUTPUT);
+        digitalWrite(D34, 1);
+        }
     Serial.begin();
     Wire.begin();
     SPI.begin();
