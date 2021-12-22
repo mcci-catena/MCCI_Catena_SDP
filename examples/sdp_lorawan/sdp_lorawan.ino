@@ -34,7 +34,7 @@ using namespace McciCatenaSdp;
 |
 \****************************************************************************/
 
-constexpr std::uint32_t kAppVersion = makeVersion(1,1,0,0);
+constexpr std::uint32_t kAppVersion = makeVersion(1,1,1,0);
 
 /****************************************************************************\
 |
