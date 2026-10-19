@@ -72,10 +72,14 @@ This photo may help with hooking up the serial port and an STLINK:
    | 4801 Pin |  Label | ST-Link Pin | Jumper Color
    |:--------:|:------:|:-----------:|---------------
    |   JP1-1  |  +VDD  |      1      | Red
-   |   JP1-2  |   GND  |      3      | Black
+   |   JP1-2  |   GND  |      4      | Black
    |   JP1-3  | SWDCLK |      9      | Brown
    |   JP1-4  | SWDIO  |      7      | Orange
    |   JP1-5  |  nRST  |     15      | Yellow
+
+   ST-LINK/V2 pin 3 is TRST, not ground. Connect GND to pin 4 (or any even-numbered pin);
+   ST requires at least one of them (UM1075 Rev 10, Table 4). Grounding pin 3 as well is
+   optional: ST recommends it for noise on the ribbon.
 
 2. Attach a Raspberry Pi 3-pin USB to TTL serial adapter.
 
